@@ -215,3 +215,22 @@ button:hover{
 
     opacity:0.95;
 }
+.switch-page{
+
+    text-align:center;
+
+    margin-top:25px;
+
+    color:#6b7280;
+
+    font-size:1rem;
+}
+
+.switch-page a{
+
+    color:#7c3aed;
+
+    text-decoration:none;
+
+    font-weight:bold;
+}

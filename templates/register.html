@@ -9,7 +9,7 @@
     <meta name="viewport"
     content="width=device-width, initial-scale=1.0">
 
-    <title>Thrive Space</title>
+    <title>Register</title>
 
     <link rel="stylesheet"
     href="{{ url_for('static', filename='css/style.css') }}">
@@ -20,42 +20,43 @@
 
 <div class="container">
 
-    <!-- LEFT SIDE -->
-
     <div class="left-section">
 
         <div class="overlay">
 
-            <h1>Thrive Space</h1>
+            <h1>Join Thrive Space</h1>
 
-            <p>Your space. Your pace. Your peace.</p>
+            <p>Start your wellness journey today.</p>
 
         </div>
 
     </div>
 
-    <!-- RIGHT SIDE -->
-
     <div class="right-section">
 
         <div class="login-card">
-            <p class="switch-page">
 
-    Don't have an account?
-
-    <a href="/register">
-        Create Account
-    </a>
-
-</p>
-
-            <h2>Welcome Back</h2>
+            <h2>Create Account</h2>
 
             <p class="subtitle">
-                Sign in to continue your wellness journey.
+                Create your peaceful space.
             </p>
 
             <form method="POST">
+<p class="switch-page">
+
+    Already have an account?
+
+    <a href="/login">
+        Login
+    </a>
+
+</p>
+                <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                required>
 
                 <input
                 type="email"
@@ -70,7 +71,7 @@
                 required>
 
                 <button type="submit">
-                    Login
+                    Register
                 </button>
 
             </form>
@@ -82,5 +83,4 @@
 </div>
 
 </body>
-
 </html>
