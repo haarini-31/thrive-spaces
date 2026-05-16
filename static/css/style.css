@@ -1,0 +1,217 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    font-family:Arial, sans-serif;
+
+    height:100vh;
+
+    overflow:hidden;
+}
+
+/* MAIN CONTAINER */
+
+.container{
+
+    display:flex;
+
+    height:100vh;
+}
+
+/* LEFT SIDE */
+
+.left-section{
+
+    flex:1;
+
+    background:
+    linear-gradient(
+        rgba(120,90,170,0.25),
+        rgba(120,90,170,0.25)
+    ),
+    url("../images/login-bg.png");
+
+    background-size:cover;
+
+    background-position:center;
+
+    position:relative;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+}
+
+/* TEXT OVERLAY */
+
+.overlay{
+
+    text-align:center;
+
+    color:#6b46c1;
+
+    z-index:2;
+}
+
+.overlay h1{
+
+    font-size:5rem;
+
+    margin-bottom:20px;
+
+    font-weight:bold;
+}
+
+.overlay p{
+
+    font-size:1.5rem;
+
+    color:#5b4b6d;
+}
+
+/* RIGHT SIDE */
+
+.right-section {
+    flex: 1;
+    background: #f5f0fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.right-section::before {
+    content: "";
+    position: absolute;
+    left: 120px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 320px;
+    height: 600px;
+    background: url("../images/lavender.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.9;
+    z-index: 1;
+}
+/* LOGIN CARD */
+
+.login-card{
+
+    width:600px;
+
+    background:rgba(255,255,255,0.95);
+
+    padding:70px 60px;
+
+    border-radius:35px;
+
+    box-shadow:0 15px 40px rgba(0,0,0,0.08);
+
+    position:relative;
+
+    z-index:2;
+}
+
+/* TITLE */
+
+.login-card h2{
+
+    font-size:4rem;
+
+    color:#7c3aed;
+
+    margin-bottom:20px;
+
+    text-align:center;
+}
+
+/* SUBTITLE */
+
+.subtitle{
+
+    text-align:center;
+
+    color:#6b7280;
+
+    font-size:1.2rem;
+
+    margin-bottom:40px;
+}
+
+/* FORM */
+
+form{
+
+    display:flex;
+
+    flex-direction:column;
+}
+
+/* INPUTS */
+
+input{
+
+    padding:22px;
+
+    margin-bottom:25px;
+
+    border:none;
+
+    border-radius:18px;
+
+    background:#f4efff;
+
+    font-size:1.1rem;
+
+    transition:0.3s;
+}
+
+input:focus{
+
+    outline:none;
+
+    border:2px solid #8b5cf6;
+
+    background:white;
+}
+
+/* BUTTON */
+
+button{
+
+    padding:22px;
+
+    border:none;
+
+    border-radius:18px;
+
+    background:linear-gradient(
+        to right,
+        #8b5cf6,
+        #7c3aed
+    );
+
+    color:white;
+
+    font-size:1.2rem;
+
+    cursor:pointer;
+
+    transition:0.3s;
+}
+
+button:hover{
+
+    transform:translateY(-2px);
+
+    opacity:0.95;
+}
