@@ -1,0 +1,358 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    background:#f4eefc;
+}
+
+.container{
+    display:flex;
+    min-height:100vh;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+    width:260px;
+    background:linear-gradient(
+        180deg,
+        #5b2fbf,
+        #8e67e8
+    );
+
+    color:white;
+
+    padding:40px 25px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:space-between;
+}
+
+.logo h1{
+    font-size:42px;
+    margin-bottom:10px;
+}
+
+.logo p{
+    font-size:18px;
+    opacity:0.9;
+}
+
+.menu{
+    margin-top:60px;
+}
+
+.menu a{
+    display:block;
+
+    text-decoration:none;
+
+    color:white;
+
+    padding:18px 20px;
+
+    border-radius:14px;
+
+    margin-bottom:18px;
+
+    transition:0.3s;
+}
+
+.menu a:hover,
+.menu .active{
+    background:rgba(255,255,255,0.2);
+}
+
+.quote-box{
+    background:rgba(255,255,255,0.15);
+
+    padding:25px;
+
+    border-radius:20px;
+
+    line-height:1.7;
+
+    font-size:20px;
+}
+
+/* MAIN */
+
+.main-content{
+    flex:1;
+
+    padding:50px;
+}
+
+.top-bar{
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:40px;
+}
+
+.top-bar h1{
+    font-size:60px;
+
+    color:#35206b;
+
+    margin-bottom:10px;
+}
+
+.top-bar p{
+    color:#6b7280;
+
+    font-size:20px;
+}
+
+.user-box{
+    text-align:right;
+}
+
+.user-box span{
+    color:#6b7280;
+}
+
+.user-box h3{
+    color:#35206b;
+    font-size:26px;
+}
+
+/* CREATE BUTTON */
+
+.create-btn-container{
+    margin-bottom:30px;
+}
+
+.create-btn{
+    text-decoration:none;
+
+    background:#8b5cf6;
+
+    color:white;
+
+    padding:16px 28px;
+
+    border-radius:14px;
+
+    font-size:18px;
+
+    transition:0.3s;
+}
+
+.create-btn:hover{
+    background:#7c3aed;
+}
+
+/* JOURNAL CARD */
+
+.journal-card{
+    background:white;
+
+    border-radius:24px;
+
+    padding:35px;
+
+    margin-bottom:30px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    box-shadow:0 8px 25px rgba(0,0,0,0.06);
+}
+
+.card-content{
+    width:70%;
+}
+
+.card-content h2{
+    color:#35206b;
+
+    font-size:34px;
+
+    margin-bottom:15px;
+}
+
+.card-content p{
+    color:#555;
+
+    line-height:1.8;
+
+    font-size:18px;
+}
+
+.card-buttons{
+    display:flex;
+
+    gap:15px;
+}
+
+.edit-btn{
+    text-decoration:none;
+
+    border:2px solid #8b5cf6;
+
+    color:#8b5cf6;
+
+    padding:12px 22px;
+
+    border-radius:12px;
+
+    transition:0.3s;
+}
+
+.edit-btn:hover{
+    background:#8b5cf6;
+
+    color:white;
+}
+
+.delete-btn{
+    text-decoration:none;
+
+    border:2px solid #f87171;
+
+    color:#f87171;
+
+    padding:12px 22px;
+
+    border-radius:12px;
+
+    transition:0.3s;
+}
+
+.delete-btn:hover{
+    background:#f87171;
+
+    color:white;
+}
+
+.form-page{
+    height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:#f4eefc;
+}
+
+.form-card{
+    background:white;
+
+    width:500px;
+
+    padding:50px;
+
+    border-radius:24px;
+
+    box-shadow:0 8px 30px rgba(0,0,0,0.08);
+}
+
+.form-card h1{
+    color:#35206b;
+
+    margin-bottom:30px;
+
+    text-align:center;
+}
+
+.form-card form{
+    display:flex;
+
+    flex-direction:column;
+}
+
+.form-card input,
+.form-card textarea{
+    padding:18px;
+
+    border:none;
+
+    background:#f3f0ff;
+
+    border-radius:14px;
+
+    margin-bottom:20px;
+
+    font-size:16px;
+}
+
+.form-card textarea{
+    height:180px;
+
+    resize:none;
+}
+
+.form-card button{
+    background:#8b5cf6;
+
+    color:white;
+
+    border:none;
+
+    padding:18px;
+
+    border-radius:14px;
+
+    font-size:16px;
+
+    cursor:pointer;
+
+    transition:0.3s;
+}
+
+.form-card button:hover{
+    background:#7c3aed;
+}
+
+.back-btn{
+    display:block;
+
+    text-align:center;
+
+    margin-top:20px;
+
+    text-decoration:none;
+
+    color:#8b5cf6;
+}
+#voice-btn{
+
+    margin-bottom:20px;
+
+    background:#ede9fe;
+
+    color:#6d28d9;
+
+    border:none;
+
+    padding:14px;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    font-size:15px;
+
+    transition:0.3s;
+}
+
+#voice-btn:hover{
+
+    background:#ddd6fe;
+}

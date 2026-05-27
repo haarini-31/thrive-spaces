@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Update Journal</title>
+
+    <link rel="stylesheet"
+    href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+</head>
+
+<body>
+
+    <div class="form-page">
+
+        <div class="form-card">
+
+            <h1>Update Journal</h1>
+
+            <form method="POST">
+
+                <input
+                type="text"
+                name="title"
+                value="{{ journal.title }}"
+                required>
+
+                <textarea
+                name="content"
+                required>{{ journal.content }}</textarea>
+
+                <button type="submit">
+                    Update Journal
+                </button>
+
+            </form>
+
+            <a href="/journals" class="back-btn">
+                Back to Journals
+            </a>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

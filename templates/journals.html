@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Thrive Space Journals</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- SIDEBAR -->
+
+        <div class="sidebar">
+
+            <div>
+
+                <div class="logo">
+
+                    <h1>Thrive</h1>
+
+                    <p>Write. Reflect. Grow.</p>
+
+                </div>
+
+                <div class="menu">
+
+                    <a href="/journals" class="active">
+                        My Journals
+                    </a>
+
+                    <a href="/create-journal">
+                        Create Journal
+                    </a>
+
+                    <a href="/therapists">
+                Therapist Connect
+                    </a>
+
+                    <a href="/profile">
+                        Profile
+                    </a>
+
+                    <a href="/logout">
+                        Logout
+                    </a>
+
+                </div>
+            </div>
+
+            <div class="quote-box">
+
+                <p>
+                    “Every day is a new chapter.”
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- MAIN CONTENT -->
+
+        <div class="main-content">
+
+            <div class="top-bar">
+
+                <div>
+
+                    <h1>My Journals</h1>
+
+                    <p>
+                        Your thoughts, your story.
+                    </p>
+
+                </div>
+
+                <div class="user-box">
+
+                    <span>
+                        Welcome,
+                    </span>
+
+                    <h3>
+                        {{ current_user.username }}
+                    </h3>
+
+                </div>
+
+            </div>
+
+            <!-- CREATE BUTTON -->
+
+            <div class="create-btn-container">
+
+                <a href="/create-journal" class="create-btn">
+                    + New Journal
+                </a>
+
+            </div>
+
+            <!-- JOURNAL CARDS -->
+
+            {% for journal in journals %}
+
+            <div class="journal-card">
+
+                <div class="card-content">
+
+                    <h2>
+                        {{ journal.title }}
+                    </h2>
+
+                    <p>
+                        {{ journal.content }}
+                    </p>
+
+                </div>
+
+                <div class="card-buttons">
+
+                    <a href="/update-journal/{{ journal.id }}" class="edit-btn">
+                        Edit
+                    </a>
+
+                    <a href="/delete-journal/{{ journal.id }}" class="delete-btn">
+                        Delete
+                    </a>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

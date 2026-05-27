@@ -1,7 +1,8 @@
-from flask import Flask,render_template,request,redirect
+from flask import Flask,render_template,request,redirect,jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
-from flask_login import LoginManager,UserMixin,login_user,login_required,current_user
+from flask_login import LoginManager,UserMixin,login_user,login_required,current_user,logout_user
+import requests
 
 app=Flask(__name__)
 
@@ -78,6 +79,49 @@ def login():
             return redirect('/journals')
     return render_template('login.html')
 
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect('/login')
+
+@app.route('/therapists')
+@login_required
+def therapists():
+    return render_template('therapists.html')
+
+@app.route('/get-therapists')
+@login_required
+def get_therapists():
+
+    lat = request.args.get('lat')
+
+    lng = request.args.get('lng')
+    radius = request.args.get('radius')
+
+    api_key = "AIzaSyAOXVG4nOlSM0KyW0euG_vZ-XZXpblROio"
+
+    url = (
+        "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
+        f"?location={lat},{lng}"
+        f"&radius={radius}"
+
+        "&type=health"
+        "&keyword=therapist"
+        f"&key={api_key}"
+    )
+
+    response = requests.get(url)
+
+    print(response.text)
+
+    return response.text
+
+@app.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html')
+
 @app.route('/create-journal', methods=['GET', 'POST'])
 @login_required
 def create_journal():
@@ -98,6 +142,41 @@ def create_journal():
 def journals():
     all_journals = Journal.query.filter_by(user_id=current_user.id).all()
     return render_template('journals.html', journals=all_journals)
+
+@app.route('/delete-journal/<int:id>')
+@login_required
+def delete_journal(id):
+    journal = Journal.query.get_or_404(id)
+    if journal.user_id == current_user.id:
+        db.session.delete(journal)
+        db.session.commit()
+    return redirect('/journals')
+
+@app.route('/update-journal/<int:id>', methods=['GET', 'POST'])
+
+@login_required
+def update_journal(id):
+
+    journal = Journal.query.get_or_404(id)
+
+    if journal.user_id != current_user.id:
+
+        return redirect('/journals')
+
+    if request.method == 'POST':
+
+        journal.title = request.form.get('title')
+
+        journal.content = request.form.get('content')
+
+        db.session.commit()
+
+        return redirect('/journals')
+
+    return render_template(
+        'update_journal.html',
+        journal=journal
+    )
 
 @app.route("/users")
 def users():

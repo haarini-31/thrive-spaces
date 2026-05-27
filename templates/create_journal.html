@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Create Journal</title>
+
+    <link rel="stylesheet"
+    href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+</head>
+
+<body>
+
+    <div class="form-page">
+
+        <div class="form-card">
+
+            <h1>Create Journal</h1>
+
+            <form method="POST">
+
+                <input
+                type="text"
+                name="title"
+                placeholder="Journal Title"
+                required>
+
+               <textarea
+                id="journal-content"
+                name="content"
+                placeholder="Write your thoughts..."
+                required></textarea>
+
+                <button
+                type="button"
+                id="voice-btn">
+                🎙 Start Voice Journal
+                </button>
+                <button type="submit">
+                    Save Journal
+                </button>
+
+            </form>
+
+            <a href="/journals" class="back-btn">
+                Back to Journals
+            </a>
+
+        </div>
+
+    </div>
+
+</body>
+
+<script>
+
+const voiceBtn =
+document.getElementById("voice-btn");
+
+const textarea =
+document.getElementById("journal-content");
+
+const SpeechRecognition =
+window.SpeechRecognition ||
+window.webkitSpeechRecognition;
+
+const recognition =
+new SpeechRecognition();
+
+recognition.continuous = true;
+
+recognition.interimResults = false;
+
+recognition.lang = "en-US";
+
+voiceBtn.addEventListener("click", () => {
+
+    recognition.start();
+
+});
+
+recognition.onresult = (event) => {
+
+    let transcript = "";
+
+    for(
+        let i = event.resultIndex;
+        i < event.results.length;
+        i++
+    ){
+
+        transcript +=
+        event.results[i][0].transcript;
+
+    }
+
+    textarea.value += transcript;
+
+};
+
+</script>
+</html>

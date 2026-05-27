@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Therapist Connect</title>
+
+    <link rel="stylesheet"
+    href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- SIDEBAR -->
+
+        <div class="sidebar">
+
+            <div>
+
+                <div class="logo">
+
+                    <h1>Thrive</h1>
+
+                    <p>Write. Reflect. Grow.</p>
+
+                </div>
+
+                <div class="menu">
+
+                    <a href="/journals">
+                        My Journals
+                    </a>
+
+                    <a href="/create-journal">
+                        Create Journal
+                    </a>
+
+                    <a href="/therapists" class="active">
+                        Therapist Connect
+                    </a>
+
+                    <a href="/profile">
+                        Profile
+                    </a>
+
+                    <a href="/logout">
+                        Logout
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- MAIN CONTENT -->
+
+        <div class="main-content">
+
+            <div class="top-bar">
+
+                <div>
+
+                    <h1>Therapist Connect</h1>
+
+                    <p>
+                        Find nearby support and wellness professionals.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="journal-card">
+
+                <div class="card-content">
+
+                    <h2>
+                        Nearby Therapists
+                    </h2>
+
+                    <p>
+                        Choose distance and explore therapists near you.
+                    </p>
+
+                    <br>
+
+                    <!-- RADIUS SELECT -->
+
+                    <select id="radius-select">
+
+                        <option value="1000">
+                            Within 1 KM
+                        </option>
+
+                        <option value="3000" selected>
+                            Within 3 KM
+                        </option>
+
+                        <option value="5000">
+                            Within 5 KM
+                        </option>
+
+                        <option value="10000">
+                            Within 10 KM
+                        </option>
+
+                    </select>
+
+                    <button
+                    onclick="findTherapists()"
+                    class="create-btn">
+
+                        Find Therapists Near Me
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- RESULTS -->
+
+            <div id="map-container"></div>
+
+        </div>
+
+    </div>
+
+<script>
+
+async function findTherapists(){
+
+    navigator.geolocation.getCurrentPosition(
+        async position => {
+
+            const lat =
+            position.coords.latitude;
+
+            const lng =
+            position.coords.longitude;
+
+            const radius =
+            document.getElementById(
+                "radius-select"
+            ).value;
+
+            const response =
+            await fetch(
+                `/get-therapists?lat=${lat}&lng=${lng}&radius=${radius}`
+            );
+
+            const data =
+            await response.json();
+
+            let cards = "";
+
+            if(data.results.length === 0){
+
+                cards = `
+                <div class="journal-card">
+
+                    <div class="card-content">
+
+                        <h2>
+                            No Therapists Found
+                        </h2>
+
+                        <p>
+                            Try increasing the distance.
+                        </p>
+
+                    </div>
+
+                </div>
+                `;
+
+            }
+
+            data.results.forEach(place => {
+
+                cards += `
+
+                <div class="journal-card">
+
+                    <div class="card-content">
+
+                        <h2>
+                            ${place.name}
+                        </h2>
+
+                        <p>
+                            ⭐ Rating:
+                            ${place.rating || "N/A"}
+                        </p>
+
+                        <p>
+                            📍 ${place.vicinity}
+                        </p>
+
+                    </div>
+
+                </div>
+
+                `;
+
+            });
+
+            document.getElementById(
+                "map-container"
+            ).innerHTML = cards;
+
+        }
+    );
+
+}
+
+</script>
+
+</body>
+
+</html>
