@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Mood Check-in — ThriveSpace</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        .mood-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 15px;
+            margin: 20px 0 25px 0;
+        }
+        .mood-radio-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 18px 10px;
+            background: #fdfcff;
+            border: 2px solid #e9d5ff;
+            border-radius: 18px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: center;
+        }
+        .mood-radio-label:hover {
+            border-color: #a855f7;
+            transform: translateY(-2px);
+            background: #fbf8ff;
+        }
+        .mood-radio-input {
+            display: none;
+        }
+        .mood-radio-input:checked + .mood-radio-label {
+            border-color: #7c3aed;
+            background: #ede9fe;
+            box-shadow: 0 4px 14px rgba(124, 58, 237, 0.18);
+        }
+        .mood-emoji {
+            font-size: 38px;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        .mood-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #35206b;
+        }
+        .mood-scale-num {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0 25px 0;
+        }
+        .tag-radio-label {
+            padding: 9px 18px;
+            background: #f4efff;
+            border: 1px solid #ddd6fe;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #5b21b6;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .tag-radio-input {
+            display: none;
+        }
+        .tag-radio-input:checked + .tag-radio-label {
+            background: #7c3aed;
+            color: #ffffff;
+            border-color: #7c3aed;
+        }
+        .form-section-title {
+            color: #35206b;
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 10px;
+            margin-bottom: 6px;
+        }
+        .helper-text {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        .already-card {
+            background: #ede9fe;
+            border-left: 5px solid #7c3aed;
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin-bottom: 25px;
+            color: #4c1d95;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div>
+                <div class="logo">
+                    <h1>Thrive</h1>
+                    <p>Write. Reflect. Grow.</p>
+                </div>
+                <div class="menu">
+                    <a href="/journals">My Journals</a>
+                    <a href="/create-journal">Create Journal</a>
+                    <a href="/mood" class="active">Daily Check-in</a>
+                    <a href="/mood/history">Mood History</a>
+                    <a href="/burnout">Wellness Assessment</a>
+                    <a href="/goals">Goals & Habits</a>
+                    <a href="/support">Professional Support</a>
+                    <a href="/profile">Profile</a>
+                    <a href="/logout">Logout</a>
+                </div>
+            </div>
+            <div class="quote-box">
+                <p>“One small positive thought in the morning can change your whole day.”</p>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div>
+                    <h1>Daily Check-in</h1>
+                    <p>Track how you feel today and reflect on your patterns.</p>
+                </div>
+                <div class="user-box">
+                    <span>Welcome,</span>
+                    <h3>{{ current_user.username }}</h3>
+                </div>
+            </div>
+
+            <!-- FLASH ALERTS -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            {% if today_entry %}
+            <div class="already-card">
+                <div>
+                    <strong>Today's Status:</strong> Checked in as {{ today_entry.emoji }} <strong>{{ today_entry.label }}</strong> (Rating: {{ today_entry.mood_rating }}/5)
+                    {% if today_entry.mood_tag %}<span style="margin-left: 8px;">• {{ today_entry.mood_tag }}</span>{% endif %}
+                </div>
+                <a href="/mood/history" style="color: #7c3aed; font-weight: 600; text-decoration: none;">View History &rarr;</a>
+            </div>
+            {% endif %}
+
+            <div class="journal-card" style="display: block;">
+                <form method="POST" action="/mood">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="form-section-title">1. How are you feeling today? *</div>
+                    <div class="helper-text">Select the rating that best reflects your current state of mind.</div>
+
+                    <div class="mood-options">
+                        {% for rating, info in mood_labels.items() %}
+                        <div>
+                            <input type="radio" name="mood_rating" id="rating_{{ rating }}" value="{{ rating }}" class="mood-radio-input"
+                                   {% if today_entry and today_entry.mood_rating == rating %}checked{% elif not today_entry and rating == 3 %}checked{% endif %} required>
+                            <label for="rating_{{ rating }}" class="mood-radio-label">
+                                <span class="mood-emoji">{{ info.emoji }}</span>
+                                <span class="mood-title">{{ info.label }}</span>
+                                <span class="mood-scale-num">Level {{ rating }}</span>
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-section-title">2. Primary influence or focus today (Optional)</div>
+                    <div class="helper-text">What area of life is most relevant to how you feel right now?</div>
+
+                    <div class="tags-container">
+                        {% for tag in mood_tags %}
+                        <div>
+                            <input type="radio" name="mood_tag" id="tag_{{ loop.index }}" value="{{ tag }}" class="tag-radio-input"
+                                   {% if today_entry and today_entry.mood_tag == tag %}checked{% endif %}>
+                            <label for="tag_{{ loop.index }}" class="tag-radio-label">{{ tag }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-section-title">3. Reflection Note (Optional)</div>
+                    <div class="helper-text">Add a short thought or context to remember this day.</div>
+
+                    <textarea name="note" placeholder="e.g. Completed a major project, had a restful walk, or feeling a bit overwhelmed with assignments..."
+                              style="width: 100%; height: 110px; padding: 15px; border-radius: 14px; border: 1px solid #e9d5ff; background: #fdfcff; font-size: 15px; font-family: inherit; resize: vertical; margin-bottom: 25px;">{% if today_entry and today_entry.note %}{{ today_entry.note }}{% endif %}</textarea>
+
+                    <div style="display: flex; gap: 15px; align-items: center;">
+                        <button type="submit" class="create-btn" style="border: none; cursor: pointer;">
+                            {% if today_entry %}Update Today's Check-in{% else %}Save Today's Check-in{% endif %}
+                        </button>
+                        <a href="/journals" class="edit-btn">Back to Dashboard</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

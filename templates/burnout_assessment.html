@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wellness Risk Assessment &mdash; ThriveSpace</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        .risk-gauge-card {
+            background: linear-gradient(135deg, #ffffff 0%, #fbf9ff 100%);
+            border-radius: 20px;
+            padding: 28px;
+            border: 1px solid #e9d5ff;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.08);
+            margin-bottom: 28px;
+        }
+        .risk-score-display {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .risk-score-circle {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: #ffffff;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            flex-shrink: 0;
+        }
+        .risk-score-val {
+            font-size: 34px;
+            line-height: 1;
+        }
+        .risk-score-max {
+            font-size: 13px;
+            opacity: 0.85;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+        .risk-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+        .prob-bar-container {
+            display: flex;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #e5e7eb;
+            margin: 14px 0 8px 0;
+        }
+        .prob-bar-low { background: #10b981; }
+        .prob-bar-mod { background: #f59e0b; }
+        .prob-bar-ele { background: #ef4444; }
+        
+        .data-sources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .source-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 14px;
+            background: #fdfcff;
+            border: 1px solid #ede9fe;
+            border-radius: 10px;
+        }
+        .source-icon-avail {
+            color: #059669;
+            font-weight: 800;
+            font-size: 15px;
+            line-height: 1.2;
+        }
+        .source-icon-miss {
+            color: #d97706;
+            font-weight: 800;
+            font-size: 15px;
+            line-height: 1.2;
+        }
+        
+        .factors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 15px;
+        }
+        .factor-card {
+            background: #ffffff;
+            border: 1px solid #ede9fe;
+            border-radius: 14px;
+            padding: 16px 18px;
+            transition: transform 0.2s ease;
+        }
+        .factor-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.06);
+        }
+        .factor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .factor-title {
+            font-weight: 700;
+            font-size: 15px;
+            color: #35206b;
+        }
+        .factor-tag {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 12px;
+        }
+        .tag-high { background: #fee2e2; color: #dc2626; }
+        .tag-medium { background: #fef3c7; color: #d97706; }
+        .tag-low { background: #ecfdf5; color: #059669; }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 22px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #35206b;
+            margin-bottom: 6px;
+        }
+        .form-help {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+        .form-input {
+            padding: 12px 14px;
+            border: 2px solid #e9d5ff;
+            border-radius: 12px;
+            font-size: 15px;
+            color: #1f2937;
+            background: #ffffff;
+            transition: border-color 0.2s ease;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+        }
+        .signal-box {
+            background: #f8f5ff;
+            border: 1px solid #ddd6fe;
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+        }
+        .disclaimer-banner {
+            background: #fffbeb;
+            border-left: 5px solid #f59e0b;
+            padding: 14px 18px;
+            border-radius: 12px;
+            color: #92400e;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .history-table th {
+            background: #f4efff;
+            color: #4c1d95;
+            text-align: left;
+            padding: 12px 14px;
+            font-weight: 600;
+            border-bottom: 2px solid #e9d5ff;
+        }
+        .history-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #f3f4f6;
+            color: #374151;
+        }
+        .history-table tr:hover {
+            background: #faf7fd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div>
+                <div class="logo">
+                    <h1>Thrive</h1>
+                    <p>Write. Reflect. Grow.</p>
+                </div>
+                <div class="menu">
+                    <a href="/journals">My Journals</a>
+                    <a href="/create-journal">Create Journal</a>
+                    <a href="/mood">Daily Check-in</a>
+                    <a href="/mood/history">Mood History</a>
+                    <a href="/burnout" class="active">Wellness Assessment</a>
+                    <a href="/goals">Goals & Habits</a>
+                    <a href="/support">Professional Support</a>
+                    <a href="/profile">Profile</a>
+                    <a href="/logout">Logout</a>
+                </div>
+            </div>
+            <div class="quote-box">
+                <p>&ldquo;Taking time to pause and assess is an act of self-care, not weakness.&rdquo;</p>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div>
+                    <h1 style="color: #35206b; font-size: 32px; font-weight: 700;">Wellness Risk Assessment</h1>
+                    <p style="color: #6b7280; font-size: 15px;">Evaluate lifestyle strain, workload demands, and recovery balance using our 7-factor Random Forest prototype (evaluated on synthetic demonstration data).</p>
+                </div>
+                <div class="user-box">
+                    <span>Logged in as</span>
+                    <h3>{{ current_user.username }}</h3>
+                </div>
+            </div>
+
+            <!-- FLASH ALERTS -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}" style="margin-bottom: 20px;">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <!-- NON-CLINICAL DISCLAIMER -->
+            <div class="disclaimer-banner">
+                <strong>Important Notice:</strong> This wellness risk assessment is an educational, AI-assisted self-reflection tool. It is <em>not</em> a clinical diagnosis, medical instrument, or substitute for professional healthcare. The underlying Random Forest model is a technical prototype evaluated on synthetic demonstration data. If you are feeling overwhelmed, chronically exhausted, or experiencing mental health challenges, please connect with a qualified therapist or physician.
+            </div>
+
+            {% if latest_assessment %}
+            <!-- LATEST ASSESSMENT RESULTS CARD -->
+            <div class="risk-gauge-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                        <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #7c3aed; letter-spacing: 0.5px;">Current Assessment</span>
+                        <h2 style="font-size: 26px; color: #35206b; margin-top: 2px;">Lifestyle & Wellness Strain Analysis</h2>
+                        <span style="font-size: 13px; color: #6b7280;">Assessed on {{ latest_assessment.created_at|format_datetime }}</span>
+                    </div>
+                    <div>
+                        <span class="risk-badge" style="background: {{ latest_assessment.badge_bg }}; color: {{ latest_assessment.badge_color }};">
+                            {{ latest_assessment.risk_level }} Strain
+                        </span>
+                    </div>
+                </div>
+
+                <div class="risk-score-display">
+                    <div class="risk-score-circle" style="background: {{ latest_assessment.badge_color }};">
+                        <span class="risk-score-val">{{ latest_assessment.risk_score }}</span>
+                        <span class="risk-score-max">/ 100</span>
+                    </div>
+                    <div style="flex: 1; min-width: 240px;">
+                        <h4 style="color: #35206b; font-size: 18px; margin-bottom: 6px;">
+                            {% if latest_assessment.risk_score <= 33 %}
+                                Low Strain Lifestyle Indicators
+                            {% elif latest_assessment.risk_score <= 66 %}
+                                Moderate Lifestyle Strain
+                            {% else %}
+                                Elevated Lifestyle Strain
+                            {% endif %}
+                        </h4>
+                        <p style="color: #4b5563; font-size: 14px; line-height: 1.5;">
+                            {% if latest_assessment.risk_score <= 33 %}
+                                Your workload, sleep duration, and self-reported indicators indicate positive recovery balance. Keep nurturing your daily routines.
+                            {% elif latest_assessment.risk_score <= 66 %}
+                                You are experiencing noticeable demands. Adjusting sleep, work pacing, and recovery intervals can help prevent cumulative burnout.
+                            {% else %}
+                                High sustained workload, elevated stress, or limited recovery signals suggest a high level of strain. Consider prioritizing immediate rest and setting firm boundaries.
+                            {% endif %}
+                        </p>
+
+                        <!-- Probability Distribution Bar -->
+                        <div style="margin-top: 14px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #6b7280; margin-bottom: 4px;">
+                                <span>Model Confidence Distribution (evaluated on synthetic training data)</span>
+                                <span>
+                                    Low: {{ "%.0f"|format(latest_assessment.probabilities.low * 100) }}% |
+                                    Moderate: {{ "%.0f"|format(latest_assessment.probabilities.moderate * 100) }}% |
+                                    Elevated: {{ "%.0f"|format(latest_assessment.probabilities.elevated * 100) }}%
+                                </span>
+                            </div>
+                            <div class="prob-bar-container">
+                                <div class="prob-bar-low" style="width: {{ latest_assessment.probabilities.low * 100 }}%;"></div>
+                                <div class="prob-bar-mod" style="width: {{ latest_assessment.probabilities.moderate * 100 }}%;"></div>
+                                <div class="prob-bar-ele" style="width: {{ latest_assessment.probabilities.elevated * 100 }}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ASSESSMENT DATA SOURCES (TRANSPARENCY PANEL) -->
+                <div style="margin-top: 22px; background: #ffffff; border: 1px solid #ede9fe; border-radius: 14px; padding: 18px 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <h4 style="color: #35206b; font-size: 16px; font-weight: 700; margin: 0;">Assessment Data Sources</h4>
+                        <span style="font-size: 12px; color: #7c3aed; font-weight: 600;">Data Availability Breakdown</span>
+                    </div>
+                    <p style="color: #6b7280; font-size: 13px; margin-bottom: 12px;">
+                        Shows which personal features were measured vs. imputed from training-data medians.
+                    </p>
+                    <div class="data-sources-grid">
+                        {% for src in latest_assessment.data_sources %}
+                        <div class="source-item">
+                            {% if src.status == 'available' %}
+                                <span class="source-icon-avail">&#10003;</span>
+                                <div>
+                                    <strong style="color: #1f2937; font-size: 13px;">{{ src.feature }}</strong> &mdash;
+                                    <span style="color: #059669; font-size: 12px; font-weight: 600;">{{ src.description }}</span>
+                                </div>
+                            {% else %}
+                                <span class="source-icon-miss">&#9675;</span>
+                                <div>
+                                    <strong style="color: #4b5563; font-size: 13px;">{{ src.feature }}</strong> &mdash;
+                                    <span style="color: #b45309; font-size: 12px;">{{ src.description }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- CONTRIBUTING FACTORS & RECOMMENDATIONS -->
+                <div style="margin-top: 25px;">
+                    <h3 style="color: #35206b; font-size: 18px; margin-bottom: 4px;">Primary Contributing Factors & Actionable Guidance</h3>
+                    <p style="color: #6b7280; font-size: 13px; margin-bottom: 12px;">
+                        Based on feature analysis of your available inputs compared to reference restorative benchmarks. Model feature importance reflects patterns in the synthetic training dataset and does not establish individual clinical causation.
+                    </p>
+                    
+                    <div class="factors-grid">
+                        {% for factor in latest_assessment.contributing_factors %}
+                        <div class="factor-card">
+                            <div class="factor-header">
+                                <span class="factor-title">{{ factor.factor }}</span>
+                                <span class="factor-tag tag-{{ factor.severity }}">{{ factor.severity }}</span>
+                            </div>
+                            <p style="color: #4b5563; font-size: 13px; line-height: 1.4; margin-bottom: 10px;">
+                                {{ factor.description }}
+                            </p>
+                            <div style="background: #faf7fd; border-left: 3px solid #7c3aed; padding: 8px 10px; border-radius: 6px; font-size: 12px; color: #5b21b6;">
+                                <strong>&#128161; Gentle Action:</strong> {{ factor.tip }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- SIGNALS USED SUMMARY -->
+                <div style="margin-top: 25px; padding-top: 18px; border-top: 1px solid #ede9fe; display: flex; flex-wrap: wrap; gap: 15px; font-size: 13px; color: #6b7280;">
+                    <div><strong>Sleep:</strong> {{ latest_assessment.sleep_hours }}h</div>
+                    <div><strong>Work/Study:</strong> {{ latest_assessment.work_study_hours }}h</div>
+                    <div><strong>Stress:</strong> {{ latest_assessment.stress_level|int }}/10</div>
+                    <div><strong>Activity:</strong> {{ latest_assessment.physical_activity_minutes|int }} min</div>
+                    <div><strong>Mood Avg:</strong> {% if latest_assessment.mood_rating is not none %}{{ latest_assessment.mood_rating }}/5{% else %}<em>Training-data median used</em>{% endif %}</div>
+                    <div><strong>Journal Sentiment:</strong> {% if latest_assessment.journal_sentiment is not none %}{{ latest_assessment.journal_sentiment }}{% else %}<em>Training-data median used</em>{% endif %}</div>
+                    <div><strong>Negative Emotion:</strong> {% if latest_assessment.negative_emotion_frequency is not none %}{{ "%.0f"|format(latest_assessment.negative_emotion_frequency * 100) }}%{% else %}<em>Training-data median used</em>{% endif %}</div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- TAKE / UPDATE ASSESSMENT CARD -->
+            <div class="journal-card" style="display: block; margin-bottom: 28px;">
+                <h2 style="color: #35206b; font-size: 22px; margin-bottom: 6px;">
+                    {% if latest_assessment %}Update Your Assessment{% else %}Take Your Wellness Risk Assessment{% endif %}
+                </h2>
+                <p style="color: #6b7280; font-size: 14px; margin-bottom: 20px;">
+                    Fill in your daily indicators below. Your recent mood logs and journaling tone will automatically sync into the model.
+                </p>
+
+                <!-- AUTO-INTEGRATED SIGNALS BANNER -->
+                <div class="signal-box">
+                    <h4 style="color: #4c1d95; font-size: 15px; font-weight: 700; margin-bottom: 12px;">
+                        Auto-Integrated Wellness Signals
+                    </h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; font-size: 13px;">
+                        <!-- Mood Check-in Signal -->
+                        <div style="background: #ffffff; padding: 14px 16px; border-radius: 12px; border: 1px solid #e9d5ff;">
+                            <strong style="color: #35206b; font-size: 14px;">Recent Mood Check-ins:</strong><br>
+                            {% if signals.has_mood_data %}
+                                <span style="color: #059669; font-weight: 700;">&#10003; Synced</span> &mdash; {{ signals.mood_sample_count }} recent mood entries<br>
+                                <span style="color: #4b5563;">Average mood: {{ signals.mood_rating }} / 5</span>
+                            {% else %}
+                                <span style="color: #d97706; font-weight: 700;">&#9432; No mood check-ins yet</span><br>
+                                <span style="color: #6b7280;">This signal is not available. The model uses its training-data median only for this missing feature.</span>
+                                <div style="margin-top: 6px;"><a href="/mood" style="color: #7c3aed; font-weight: 600;">Check in now &rarr;</a></div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Journal Reflections Signal -->
+                        <div style="background: #ffffff; padding: 14px 16px; border-radius: 12px; border: 1px solid #e9d5ff;">
+                            <strong style="color: #35206b; font-size: 14px;">Journal Sentiment & Emotions:</strong><br>
+                            {% if signals.has_journal_data %}
+                                <span style="color: #059669; font-weight: 700;">&#10003; Synced</span> &mdash; {{ signals.journal_sample_count }} recent journals<br>
+                                <span style="color: #4b5563;">Sentiment: {{ signals.journal_sentiment }}, Negative theme ratio: {{ "%.0f"|format(signals.negative_emotion_frequency * 100) }}%</span>
+                            {% else %}
+                                <span style="color: #d97706; font-weight: 700;">&#9432; No journal entries yet</span><br>
+                                <span style="color: #6b7280;">Journal sentiment and emotion frequency are unavailable. The model uses training-data medians only for these missing features.</span>
+                                <div style="margin-top: 6px;"><a href="/create-journal" style="color: #7c3aed; font-weight: 600;">Create journal &rarr;</a></div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ASSESSMENT FORM -->
+                <form action="/burnout" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    
+                    <div class="form-grid">
+                        <!-- Sleep Hours -->
+                        <div class="form-group">
+                            <label class="form-label" for="sleep_hours">Average Sleep Duration (Hours/Night)</label>
+                            <span class="form-help">Typical nightly sleep over the past week (0 to 24)</span>
+                            <input 
+                                type="number" 
+                                step="0.5" 
+                                min="0" 
+                                max="24" 
+                                id="sleep_hours" 
+                                name="sleep_hours" 
+                                class="form-input" 
+                                value="{{ form_data.get('sleep_hours', (latest_assessment.sleep_hours if latest_assessment else 7.0)) }}" 
+                                required
+                            >
+                        </div>
+
+                        <!-- Work / Study Hours -->
+                        <div class="form-group">
+                            <label class="form-label" for="work_study_hours">Work & Study Demands (Hours/Day)</label>
+                            <span class="form-help">Average daily hours spent on work, classes, or intense focus (0 to 24)</span>
+                            <input 
+                                type="number" 
+                                step="0.5" 
+                                min="0" 
+                                max="24" 
+                                id="work_study_hours" 
+                                name="work_study_hours" 
+                                class="form-input" 
+                                value="{{ form_data.get('work_study_hours', (latest_assessment.work_study_hours if latest_assessment else 8.0)) }}" 
+                                required
+                            >
+                        </div>
+
+                        <!-- Stress Level -->
+                        <div class="form-group">
+                            <label class="form-label" for="stress_level">Perceived Stress Level (1 to 10)</label>
+                            <span class="form-help">1 = Deeply calm, 5 = Manageable pressure, 10 = Severe strain</span>
+                            <input 
+                                type="number" 
+                                step="1" 
+                                min="1" 
+                                max="10" 
+                                id="stress_level" 
+                                name="stress_level" 
+                                class="form-input" 
+                                value="{{ form_data.get('stress_level', (latest_assessment.stress_level|int if latest_assessment else 5)) }}" 
+                                required
+                            >
+                        </div>
+
+                        <!-- Physical Activity -->
+                        <div class="form-group">
+                            <label class="form-label" for="physical_activity_minutes">Physical Activity (Minutes/Day)</label>
+                            <span class="form-help">Daily walking, workouts, sports, or active movement (0 to 1440)</span>
+                            <input 
+                                type="number" 
+                                step="5" 
+                                min="0" 
+                                max="1440" 
+                                id="physical_activity_minutes" 
+                                name="physical_activity_minutes" 
+                                class="form-input" 
+                                value="{{ form_data.get('physical_activity_minutes', (latest_assessment.physical_activity_minutes|int if latest_assessment else 30)) }}" 
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 12px; align-items: center; margin-top: 10px;">
+                        <button type="submit" class="create-btn" style="border: none; cursor: pointer; font-size: 15px; padding: 12px 28px;">
+                            {% if latest_assessment %}Re-calculate Assessment{% else %}Calculate Wellness Assessment{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- ASSESSMENT HISTORY -->
+            {% if history and history|length > 0 %}
+            <div class="journal-card" style="display: block;">
+                <h3 style="color: #35206b; font-size: 20px; margin-bottom: 4px;">Assessment History</h3>
+                <p style="color: #6b7280; font-size: 13px; margin-bottom: 15px;">Your recent wellness strain evaluations over time.</p>
+                
+                <div style="overflow-x: auto;">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Risk Score</th>
+                                <th>Strain Level</th>
+                                <th>Sleep</th>
+                                <th>Work/Study</th>
+                                <th>Stress</th>
+                                <th>Activity</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in history %}
+                            <tr>
+                                <td>{{ item.created_at|format_date }}</td>
+                                <td><strong>{{ item.risk_score }} / 100</strong></td>
+                                <td>
+                                    <span class="risk-badge" style="background: {{ item.badge_bg }}; color: {{ item.badge_color }}; font-size: 11px; padding: 3px 10px;">
+                                        {{ item.risk_level }}
+                                    </span>
+                                </td>
+                                <td>{{ item.sleep_hours }} hrs</td>
+                                <td>{{ item.work_study_hours }} hrs</td>
+                                <td>{{ item.stress_level|int }}/10</td>
+                                <td>{{ item.physical_activity_minutes|int }} min</td>
+                                <td>
+                                    <form action="/burnout/{{ item.id }}/delete" method="POST" style="display: inline;" onsubmit="return confirm('Delete this assessment record?');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 13px; font-weight: 600;">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

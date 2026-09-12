@@ -1,0 +1,114 @@
+{
+  "timestamp": "2026-09-12T18:58:05.164610+00:00",
+  "dataset_type": "synthetic_prototype",
+  "dataset_path": "data/synthetic_wellness_dataset.csv",
+  "total_samples": 2000,
+  "train_samples": 1600,
+  "test_samples": 400,
+  "class_distribution_train": {
+    "0": 653,
+    "1": 562,
+    "2": 385
+  },
+  "class_distribution_test": {
+    "0": 164,
+    "1": 140,
+    "2": 96
+  },
+  "model_type": "RandomForestClassifier",
+  "parameters": {
+    "n_estimators": 100,
+    "max_depth": 8,
+    "min_samples_split": 4,
+    "min_samples_leaf": 2,
+    "random_state": 42
+  },
+  "metrics": {
+    "accuracy": 0.935,
+    "precision_macro": 0.9277,
+    "recall_macro": 0.9333,
+    "f1_macro": 0.9301,
+    "confusion_matrix": [
+      [
+        159,
+        5,
+        0
+      ],
+      [
+        3,
+        125,
+        12
+      ],
+      [
+        0,
+        6,
+        90
+      ]
+    ],
+    "detailed_report": {
+      "0": {
+        "precision": 0.9814814814814815,
+        "recall": 0.9695121951219512,
+        "f1-score": 0.9754601226993865,
+        "support": 164.0
+      },
+      "1": {
+        "precision": 0.9191176470588235,
+        "recall": 0.8928571428571429,
+        "f1-score": 0.9057971014492754,
+        "support": 140.0
+      },
+      "2": {
+        "precision": 0.8823529411764706,
+        "recall": 0.9375,
+        "f1-score": 0.9090909090909091,
+        "support": 96.0
+      },
+      "accuracy": 0.935,
+      "macro avg": {
+        "precision": 0.9276506899055917,
+        "recall": 0.9332897793263647,
+        "f1-score": 0.9301160444131904,
+        "support": 400.0
+      },
+      "weighted avg": {
+        "precision": 0.9358632897603485,
+        "recall": 0.935,
+        "f1-score": 0.9351494539958131,
+        "support": 400.0
+      }
+    }
+  },
+  "feature_importance_description": "Model feature importance on the synthetic training dataset",
+  "feature_importances": [
+    {
+      "feature": "negative_emotion_frequency",
+      "importance": 0.3257
+    },
+    {
+      "feature": "stress_level",
+      "importance": 0.1725
+    },
+    {
+      "feature": "sleep_hours",
+      "importance": 0.1538
+    },
+    {
+      "feature": "mood_rating",
+      "importance": 0.1328
+    },
+    {
+      "feature": "work_study_hours",
+      "importance": 0.1195
+    },
+    {
+      "feature": "journal_sentiment",
+      "importance": 0.0557
+    },
+    {
+      "feature": "physical_activity_minutes",
+      "importance": 0.0399
+    }
+  ],
+  "disclaimer": "This model is trained on synthetic data for technical prototyping only. It is not clinically diagnostic."
+}

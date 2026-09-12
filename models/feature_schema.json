@@ -1,0 +1,35 @@
+{
+  "feature_names": [
+    "sleep_hours",
+    "work_study_hours",
+    "stress_level",
+    "physical_activity_minutes",
+    "mood_rating",
+    "journal_sentiment",
+    "negative_emotion_frequency"
+  ],
+  "feature_count": 7,
+  "target_classes": {
+    "0": "Low",
+    "1": "Moderate",
+    "2": "Elevated"
+  },
+  "feature_descriptions": {
+    "sleep_hours": "Average daily sleep duration in hours (valid range 0-24)",
+    "work_study_hours": "Average daily study/work duration in hours (valid range 0-24)",
+    "stress_level": "Self-reported perceived stress on 1-10 scale",
+    "physical_activity_minutes": "Daily physical activity in minutes (valid range 0-1440)",
+    "mood_rating": "Recent mood check-in average on 1-5 scale",
+    "journal_sentiment": "Recent journal sentiment polarity score (-1.0 to +1.0)",
+    "negative_emotion_frequency": "Frequency ratio of negative emotions (sadness, fear, anger, disgust) in recent journals (0.0 to 1.0)"
+  },
+  "imputer_medians": {
+    "sleep_hours": 6.7,
+    "work_study_hours": 8.2,
+    "stress_level": 5.0,
+    "physical_activity_minutes": 27.0,
+    "mood_rating": 3.0,
+    "journal_sentiment": 0.042499999999999996,
+    "negative_emotion_frequency": 0.255
+  }
+}

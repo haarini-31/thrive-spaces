@@ -42,7 +42,16 @@
                 Create your peaceful space.
             </p>
 
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
             <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 <p class="switch-page">
 
     Already have an account?

@@ -1,150 +1,406 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Thrive Space Journals</title>
-
+    <title>ThriveSpace — Wellness & Journals</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-
+    <style>
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        @media (max-width: 900px) {
+            .grid-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
-
 <body>
-
     <div class="container">
-
         <!-- SIDEBAR -->
-
         <div class="sidebar">
-
             <div>
-
                 <div class="logo">
-
                     <h1>Thrive</h1>
-
                     <p>Write. Reflect. Grow.</p>
-
                 </div>
-
                 <div class="menu">
-
-                    <a href="/journals" class="active">
-                        My Journals
-                    </a>
-
-                    <a href="/create-journal">
-                        Create Journal
-                    </a>
-
-                    <a href="/therapists">
-                Therapist Connect
-                    </a>
-
-                    <a href="/profile">
-                        Profile
-                    </a>
-
-                    <a href="/logout">
-                        Logout
-                    </a>
-
+                    <a href="/journals" class="active">My Journals</a>
+                    <a href="/create-journal">Create Journal</a>
+                    <a href="/mood">Daily Check-in</a>
+                    <a href="/mood/history">Mood History</a>
+                    <a href="/burnout">Wellness Assessment</a>
+                    <a href="/goals">Goals & Habits</a>
+                    <a href="/support">Professional Support</a>
+                    <a href="/profile">Profile</a>
+                    <a href="/logout">Logout</a>
                 </div>
             </div>
-
             <div class="quote-box">
-
-                <p>
-                    “Every day is a new chapter.”
-                </p>
-
+                <p>“Every day is a new chapter in your wellness journey.”</p>
             </div>
-
         </div>
 
         <!-- MAIN CONTENT -->
-
         <div class="main-content">
-
             <div class="top-bar">
-
                 <div>
-
-                    <h1>My Journals</h1>
-
-                    <p>
-                        Your thoughts, your story.
-                    </p>
-
+                    <h1>My Dashboard</h1>
+                    <p>Reflect on your mood, track your thoughts, and nurture your peace.</p>
                 </div>
-
                 <div class="user-box">
-
-                    <span>
-                        Welcome,
-                    </span>
-
-                    <h3>
-                        {{ current_user.username }}
-                    </h3>
-
+                    <span>Welcome,</span>
+                    <h3>{{ current_user.username }}</h3>
                 </div>
-
             </div>
 
-            <!-- CREATE BUTTON -->
+            <!-- FLASH ALERTS -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
 
-            <div class="create-btn-container">
+            <!-- TODAY'S CHECK-IN CARD -->
+            <div class="journal-card" style="background: linear-gradient(135deg, #ffffff 0%, #fbf8ff 100%); border-left: 6px solid #8b5cf6; margin-bottom: 25px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 15px;">
+                    <div>
+                        <div style="text-transform: uppercase; font-size: 12px; color: #7c3aed; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 4px;">Daily Check-in</div>
+                        {% if today_mood %}
+                        <h2 style="font-size: 26px; color: #35206b; margin-bottom: 4px;">
+                            Today's Mood: {{ today_mood.emoji }} {{ today_mood.label }}
+                        </h2>
+                        <p style="color: #6b7280; font-size: 15px;">
+                            Rating {{ today_mood.mood_rating }}/5 {% if today_mood.mood_tag %}• Tag: <strong>{{ today_mood.mood_tag }}</strong>{% endif %}
+                            {% if today_mood.note %}— <em>“{{ today_mood.note }}”</em>{% endif %}
+                        </p>
+                        {% else %}
+                        <h2 style="font-size: 24px; color: #35206b; margin-bottom: 4px;">How are you feeling today?</h2>
+                        <p style="color: #6b7280; font-size: 15px;">Take 10 seconds to record your mood and track your wellness pattern.</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <a href="/mood" class="create-btn" style="white-space: nowrap;">
+                            {% if today_mood %}Update Check-in{% else %}Check in Now{% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
 
+            <!-- WELLNESS RISK ASSESSMENT CARD -->
+            <div class="journal-card" style="background: linear-gradient(135deg, #ffffff 0%, #fbf8ff 100%); border-left: 6px solid #f59e0b; margin-bottom: 25px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 15px;">
+                    <div>
+                        <div style="text-transform: uppercase; font-size: 12px; color: #b45309; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 4px;">AI Wellness Risk Assessment</div>
+                        {% if latest_assessment %}
+                        <h2 style="font-size: 24px; color: #35206b; margin-bottom: 4px;">
+                            Lifestyle Strain: <span style="color: {{ latest_assessment.badge_color }}; font-weight: 800;">{{ latest_assessment.risk_score }}/100</span> ({{ latest_assessment.risk_level }} Strain)
+                        </h2>
+                        <p style="color: #6b7280; font-size: 14px;">
+                            Assessed {{ latest_assessment.created_at|format_date }} • Sleep: {{ latest_assessment.sleep_hours }}h • Work/Study: {{ latest_assessment.work_study_hours }}h • Stress: {{ latest_assessment.stress_level|int }}/10
+                        </p>
+                        {% else %}
+                        <h2 style="font-size: 24px; color: #35206b; margin-bottom: 4px;">Evaluate Your Lifestyle Balance & Strain</h2>
+                        <p style="color: #6b7280; font-size: 14px;">Use our 7-factor ML model to evaluate sleep, workload, stress, and recovery indicators.</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <a href="/burnout" class="create-btn" style="background: #4c1d95; white-space: nowrap;">
+                            {% if latest_assessment %}View Assessment Details{% else %}Take Assessment{% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WELLNESS OVERVIEW & CHART GRID -->
+            <div class="grid-2col">
+                <!-- Recent Wellness Activity Card -->
+                <div class="journal-card" style="margin-bottom: 0; display: block;">
+                    <h3 style="color: #35206b; font-size: 20px; margin-bottom: 15px;">Recent Wellness Activity</h3>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div style="display: flex; justify-content: space-between; padding: 10px 14px; background: #f8f5ff; border-radius: 12px;">
+                            <span style="color: #6b7280;">Wellness Risk Level:</span>
+                            <strong>
+                                {% if latest_assessment %}
+                                    <span style="color: {{ latest_assessment.badge_color }};">{{ latest_assessment.risk_level }} ({{ latest_assessment.risk_score }}/100)</span>
+                                {% else %}
+                                    <span style="color: #9ca3af; font-weight: normal;">Not assessed yet</span>
+                                {% endif %}
+                            </strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 10px 14px; background: #f8f5ff; border-radius: 12px;">
+                            <span style="color: #6b7280;">Today's Mood:</span>
+                            <strong>
+                                {% if today_mood %}
+                                    {{ today_mood.emoji }} {{ today_mood.label }} ({{ today_mood.mood_rating }}/5)
+                                {% else %}
+                                    <span style="color: #9ca3af; font-weight: normal;">Not recorded yet</span>
+                                {% endif %}
+                            </strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 10px 14px; background: #f8f5ff; border-radius: 12px;">
+                            <span style="color: #6b7280;">7-Day Average Mood:</span>
+                            <strong>
+                                {% if mood_summary.avg_7d is not none %}
+                                    {{ mood_summary.avg_7d }} / 5
+                                {% else %}
+                                    <span style="color: #9ca3af; font-weight: normal;">Need more check-ins</span>
+                                {% endif %}
+                            </strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 10px 14px; background: #f8f5ff; border-radius: 12px;">
+                            <span style="color: #6b7280;">Latest Journal Sentiment:</span>
+                            <strong>
+                                {% if latest_journal and latest_journal.sentiment %}
+                                    {{ latest_journal.sentiment }} ({{ "%.2f"|format(latest_journal.sentiment_score if latest_journal.sentiment_score is not none else 0.0) }})
+                                {% else %}
+                                    <span style="color: #9ca3af; font-weight: normal;">No journals yet</span>
+                                {% endif %}
+                            </strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 10px 14px; background: #f8f5ff; border-radius: 12px;">
+                            <span style="color: #6b7280;">Latest Detected Emotion:</span>
+                            <strong style="color: #7c3aed;">
+                                {% if latest_journal and latest_journal.emotion %}
+                                    {{ latest_journal.emotion }}
+                                {% else %}
+                                    <span style="color: #9ca3af; font-weight: normal;">No journals yet</span>
+                                {% endif %}
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7-Day Mood Trend Chart.js Card -->
+                <div class="journal-card" style="margin-bottom: 0; display: block;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+                        <h3 style="color: #35206b; font-size: 20px;">7-Day Mood Trend</h3>
+                        <span style="font-size: 13px; color: #7c3aed; font-weight: 600;">{{ mood_summary.trend_msg }}</span>
+                    </div>
+                    {% if mood_summary.has_enough_chart_data %}
+                        <div style="position: relative; height: 165px; width: 100%;">
+                            <canvas id="moodChart"></canvas>
+                        </div>
+                    {% else %}
+                        <div style="height: 165px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #faf7fd; border-radius: 14px; text-align: center; padding: 15px;">
+                            <span style="font-size: 28px; margin-bottom: 6px;">📈</span>
+                            <p style="color: #6b7280; font-size: 14px; margin-bottom: 8px;">Check in for a few more days to see your mood trend.</p>
+                            <a href="/mood" style="color: #7c3aed; font-weight: 600; text-decoration: none; font-size: 13px;">+ Record your mood &rarr;</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- YOUR NEXT SMALL STEPS (SUGGESTIONS) -->
+            <div class="journal-card" style="background: linear-gradient(135deg, #ffffff 0%, #fbf9ff 100%); border-left: 6px solid #8b5cf6; margin-bottom: 25px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <div style="text-transform: uppercase; font-size: 12px; color: #7c3aed; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 2px;">Explainable Guidance</div>
+                        <h2 style="font-size: 22px; color: #35206b; margin: 0;">Your Next Small Steps</h2>
+                    </div>
+                    <a href="/goals" style="color: #7c3aed; font-weight: 600; font-size: 13px; text-decoration: none;">View All Goals &rarr;</a>
+                </div>
+                <p style="color: #6b7280; font-size: 13px; margin-bottom: 14px;">
+                    {{ disclaimer }}
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
+                    {% for item in suggestions %}
+                    <div style="background: #ffffff; border: 1px solid #ede9fe; border-left: 4px solid #8b5cf6; border-radius: 12px; padding: 14px 16px;">
+                        <div style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: #6d28d9; margin-bottom: 6px;">
+                            Based on: {{ item.source_signal }}
+                        </div>
+                        <h4 style="color: #35206b; font-size: 14px; font-weight: 700; line-height: 1.4; margin-bottom: 6px;">
+                            {{ item.suggestion }}
+                        </h4>
+                        <p style="color: #6b7280; font-size: 12px; line-height: 1.4; margin: 0;">
+                            <strong>Why:</strong> {{ item.reason }}
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 2-COLUMN DASHBOARD EXTENSION: GOALS & HABITS -->
+            <div class="grid-2col">
+                <!-- My Goals Card -->
+                <div class="journal-card" style="margin-bottom: 0; display: block;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <h3 style="color: #35206b; font-size: 18px; margin: 0;">My Active Goals</h3>
+                        <a href="/goals" style="color: #7c3aed; font-weight: 600; font-size: 13px; text-decoration: none;">Manage &rarr;</a>
+                    </div>
+                    {% if active_goals and active_goals|length > 0 %}
+                        {% for goal in active_goals %}
+                        <div style="padding: 10px 12px; background: #faf8ff; border: 1px solid #ede5fc; border-radius: 12px; margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <strong style="color: #35206b; font-size: 14px;">{{ goal.title }}</strong>
+                                <span style="font-size: 12px; font-weight: 700; color: #7c3aed;">{{ goal.current_value }} / {{ goal.target_value }} {{ goal.unit }}</span>
+                            </div>
+                            <div style="width: 100%; height: 6px; background: #ede5fc; border-radius: 4px; overflow: hidden; margin: 6px 0;">
+                                <div style="height: 100%; width: {{ goal.progress_percentage }}%; background: #8b5cf6;"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #6b7280;">
+                                <span>{{ goal.progress_percentage }}% complete</span>
+                                <span>{% if goal.deadline %}Due {{ goal.deadline|format_date }}{% else %}Ongoing{% endif %}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div style="text-align: center; padding: 20px 10px; color: #6b7280; font-size: 13px;">
+                            No active goals right now.<br>
+                            <a href="/goals" style="color: #7c3aed; font-weight: 600; text-decoration: none; font-size: 13px;">+ Set a goal &rarr;</a>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Today's Habits Card -->
+                <div class="journal-card" style="margin-bottom: 0; display: block;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <h3 style="color: #35206b; font-size: 18px; margin: 0;">Today's Habits</h3>
+                        <a href="/goals" style="color: #7c3aed; font-weight: 600; font-size: 13px; text-decoration: none;">Manage &rarr;</a>
+                    </div>
+                    {% if habits and habits|length > 0 %}
+                        {% for habit in habits %}
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #faf8ff; border: 1px solid #ede5fc; border-radius: 12px; margin-bottom: 8px;">
+                            <div>
+                                <span style="font-size: 13.5px; font-weight: 600; color: #35206b;">{{ habit.name }}</span>
+                                <div style="font-size: 11px; color: #6b7280;">{{ habit.category }} • {{ habit.frequency }}</div>
+                            </div>
+                            <form action="/habits/{{ habit.id }}/toggle" method="POST" style="margin: 0;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                {% if habit.is_completed_today %}
+                                    <button type="submit" style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 8px; padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer;">
+                                        &#10003; Done
+                                    </button>
+                                {% else %}
+                                    <button type="submit" style="background: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8; border-radius: 8px; padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer;">
+                                        &#9675; Mark Done
+                                    </button>
+                                {% endif %}
+                            </form>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div style="text-align: center; padding: 20px 10px; color: #6b7280; font-size: 13px;">
+                            No daily habits tracked yet.<br>
+                            <a href="/goals" style="color: #7c3aed; font-weight: 600; text-decoration: none; font-size: 13px;">+ Add a habit &rarr;</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- JOURNAL SECTION HEADER -->
+            <div class="create-btn-container" style="display: flex; justify-content: space-between; align-items: center; margin-top: 30px;">
+                <h2 style="color: #35206b; font-size: 28px;">My Journal Reflections</h2>
                 <a href="/create-journal" class="create-btn">
                     + New Journal
                 </a>
-
             </div>
 
-            <!-- JOURNAL CARDS -->
-
-            {% for journal in journals %}
-
+            <!-- EMPTY STATE -->
+            {% if not journals %}
             <div class="journal-card">
-
                 <div class="card-content">
+                    <h2>No journals yet</h2>
+                    <p>Start your reflection journey today by clicking "+ New Journal" above.</p>
+                </div>
+            </div>
+            {% endif %}
 
-                    <h2>
-                        {{ journal.title }}
-                    </h2>
-
-                    <p>
-                        {{ journal.content }}
-                    </p>
-
+            <!-- JOURNAL CARDS -->
+            {% for journal in journals %}
+            <div class="journal-card">
+                <div class="card-content">
+                    <h2>{{ journal.title }}</h2>
+                    <div style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">
+                        <span>📅 {{ journal.created_at|format_date }}</span>
+                        <span style="margin-left: 10px;">⏰ {{ journal.created_at|format_datetime }}</span>
+                    </div>
+                    <p>{{ journal.content }}</p>
+                    <div class="analysis-box">
+                        <p>🧠 Emotion: <strong>{{ journal.emotion }}</strong></p>
+                        <p>😊 Sentiment: <strong>{{ journal.sentiment }}</strong></p>
+                        <p>📊 Score: <strong>{{ "%.2f"|format(journal.sentiment_score if journal.sentiment_score is not none else 0.0) }}</strong></p>
+                    </div>
                 </div>
 
                 <div class="card-buttons">
-
-                    <a href="/update-journal/{{ journal.id }}" class="edit-btn">
-                        Edit
-                    </a>
-
-                    <a href="/delete-journal/{{ journal.id }}" class="delete-btn">
-                        Delete
-                    </a>
-
+                    <a href="/update-journal/{{ journal.id }}" class="edit-btn">Edit</a>
+                    <form action="/delete-journal/{{ journal.id }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this journal entry?');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="delete-btn" style="background:none; cursor:pointer; font:inherit;">
+                            Delete
+                        </button>
+                    </form>
                 </div>
-
             </div>
-
             {% endfor %}
-
         </div>
-
     </div>
 
+    <!-- CHART.JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+    {% if mood_summary.has_enough_chart_data %}
+    const ctx = document.getElementById('moodChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ mood_summary.chart_labels|tojson }},
+            datasets: [{
+                label: 'Mood (1-5)',
+                data: {{ mood_summary.chart_values|tojson }},
+                borderColor: '#8b5cf6',
+                backgroundColor: 'rgba(139, 92, 246, 0.12)',
+                borderWidth: 3,
+                tension: 0.35,
+                fill: true,
+                spanGaps: true,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                pointBackgroundColor: '#7c3aed',
+                pointBorderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    min: 1,
+                    max: 5,
+                    ticks: {
+                        stepSize: 1,
+                        callback: function(value) {
+                            const labels = {1: '1 😞', 2: '2 🙁', 3: '3 😐', 4: '4 🙂', 5: '5 😄'};
+                            return labels[value] || value;
+                        }
+                    },
+                    grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const labels = {1: 'Very Low (1)', 2: 'Low (2)', 3: 'Okay (3)', 4: 'Good (4)', 5: 'Great (5)'};
+                            return ' Mood: ' + (labels[context.raw] || context.raw);
+                        }
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+    </script>
 </body>
-
 </html>

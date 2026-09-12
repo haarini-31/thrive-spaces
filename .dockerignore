@@ -1,0 +1,10 @@
+﻿.git
+.env
+__pycache__
+*.py[cod]
+instance/*.bak*
+instance/site.db.bak*
+scratch
+*.log
+.vscode
+.idea

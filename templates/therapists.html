@@ -1,226 +1,505 @@
 <!DOCTYPE html>
-
-<html>
-
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional &amp; Wellness Support &mdash; ThriveSpace</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        /* Phase 5 Support Directory Custom Styling */
+        .emergency-banner {
+            background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+            border: 1px solid #fecdd3;
+            border-left: 6px solid #e11d48;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 14px rgba(225, 29, 72, 0.06);
+        }
+        .emergency-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .emergency-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            background: #e11d48;
+            color: #ffffff;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .emergency-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #9f1239;
+            margin: 0;
+        }
+        .emergency-desc {
+            font-size: 14.5px;
+            line-height: 1.6;
+            color: #4c0519;
+            margin-bottom: 18px;
+        }
+        .emergency-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+        .emergency-card {
+            background: #ffffff;
+            border: 1px solid #fecdd3;
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .emergency-card-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #881337;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .emergency-card-num {
+            font-size: 18px;
+            font-weight: 800;
+            color: #e11d48;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+        .emergency-card-num:hover {
+            text-decoration: underline;
+        }
+        .emergency-card-sub {
+            font-size: 12px;
+            color: #64748b;
+        }
+        .emergency-disclaimer {
+            font-size: 12.5px;
+            color: #9f1239;
+            font-style: italic;
+            border-top: 1px dashed #fecdd3;
+            padding-top: 10px;
+            margin: 0;
+        }
 
-    <title>Therapist Connect</title>
+        /* Personalized Support CTA Banner */
+        .cta-banner {
+            background: #ffffff;
+            border: 1px solid #ede9fe;
+            border-left: 5px solid #8b5cf6;
+            border-radius: 14px;
+            padding: 18px 22px;
+            margin-bottom: 26px;
+            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.04);
+        }
+        .cta-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #6d28d9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        .cta-text {
+            font-size: 15px;
+            color: #1e293b;
+            line-height: 1.5;
+            margin: 0 0 6px 0;
+        }
+        .cta-subtext {
+            font-size: 12.5px;
+            color: #64748b;
+            margin: 0;
+        }
 
-    <link rel="stylesheet"
-    href="{{ url_for('static', filename='css/dashboard.css') }}">
+        /* Category Filter Tabs */
+        .category-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        .filter-btn {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: #8b5cf6;
+            color: #ffffff;
+            border-color: #8b5cf6;
+        }
 
+        /* Resource Grid */
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 36px;
+        }
+        .resource-card {
+            background: #ffffff;
+            border: 1px solid #ede9fe;
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .resource-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(124, 58, 237, 0.08);
+        }
+        .resource-category-badge {
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 3px 9px;
+            border-radius: 12px;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .badge-crisis {
+            background: #ffe4e6;
+            color: #e11d48;
+        }
+        .badge-helpline {
+            background: #ede9fe;
+            color: #6d28d9;
+        }
+        .badge-professional {
+            background: #e0f2fe;
+            color: #0284c7;
+        }
+        .badge-student {
+            background: #ecfdf5;
+            color: #059669;
+        }
+        .badge-selfhelp {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        .resource-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0 0 8px 0;
+        }
+        .resource-desc {
+            font-size: 13.5px;
+            color: #475569;
+            line-height: 1.55;
+            margin-bottom: 16px;
+            flex-grow: 1;
+        }
+        .resource-meta {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 16px;
+            font-size: 12.5px;
+        }
+        .meta-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #334155;
+            margin-bottom: 4px;
+        }
+        .meta-row:last-child {
+            margin-bottom: 0;
+        }
+        .meta-label {
+            font-weight: 600;
+            color: #64748b;
+            min-width: 70px;
+        }
+        .meta-phone {
+            color: #8b5cf6;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .meta-phone:hover {
+            text-decoration: underline;
+        }
+        .resource-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+        .tag-pill {
+            background: #f1f5f9;
+            color: #64748b;
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 6px;
+        }
+        .resource-action-btn {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            background: #8b5cf6;
+            color: #ffffff;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.2s ease;
+            box-sizing: border-box;
+        }
+        .resource-action-btn:hover {
+            background: #7c3aed;
+        }
+
+        /* Responsible AI Card */
+        .notice-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 20px 24px;
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.6;
+        }
+        .notice-card h4 {
+            margin: 0 0 6px 0;
+            color: #1e293b;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .notice-card p {
+            margin: 0;
+        }
+    </style>
 </head>
-
 <body>
 
     <div class="container">
 
         <!-- SIDEBAR -->
-
         <div class="sidebar">
-
             <div>
-
                 <div class="logo">
-
                     <h1>Thrive</h1>
-
                     <p>Write. Reflect. Grow.</p>
-
                 </div>
 
                 <div class="menu">
-
-                    <a href="/journals">
-                        My Journals
-                    </a>
-
-                    <a href="/create-journal">
-                        Create Journal
-                    </a>
-
-                    <a href="/therapists" class="active">
-                        Therapist Connect
-                    </a>
-
-                    <a href="/profile">
-                        Profile
-                    </a>
-
-                    <a href="/logout">
-                        Logout
-                    </a>
-
+                    {% if current_user.is_authenticated %}
+                        <a href="/journals">My Journals</a>
+                        <a href="/create-journal">Create Journal</a>
+                        <a href="/mood">Daily Check-in</a>
+                        <a href="/mood/history">Mood History</a>
+                        <a href="/burnout">Wellness Assessment</a>
+                        <a href="/goals">Goals &amp; Habits</a>
+                        <a href="/support" class="active">Professional Support</a>
+                        <a href="/profile">Profile</a>
+                        <a href="/logout">Logout</a>
+                    {% else %}
+                        <a href="/support" class="active">Support &amp; Resources</a>
+                        <a href="/login">Sign In</a>
+                        <a href="/register">Create Account</a>
+                    {% endif %}
                 </div>
-
             </div>
-
         </div>
 
         <!-- MAIN CONTENT -->
-
         <div class="main-content">
 
             <div class="top-bar">
-
                 <div>
-
-                    <h1>Therapist Connect</h1>
-
-                    <p>
-                        Find nearby support and wellness professionals.
-                    </p>
-
+                    <h1>Professional Support &amp; Wellness Resources</h1>
+                    <p>Verified national helplines, support organizations, and guidance for your wellbeing journey.</p>
                 </div>
-
             </div>
 
-            <div class="journal-card">
+            <!-- EMERGENCY / CRISIS SAFETY CARD -->
+            <div class="emergency-banner" id="emergency-support">
+                <div class="emergency-header">
+                    <div class="emergency-icon">&#9888;</div>
+                    <h2 class="emergency-title">Need Immediate Help?</h2>
+                </div>
+                <p class="emergency-desc">
+                    If you are experiencing overwhelming emotional distress, feel in immediate danger, or cannot keep yourself safe, please reach out right away. You are not alone, and compassionate, free help is available 24/7 across India.
+                </p>
 
-                <div class="card-content">
+                <div class="emergency-grid">
+                    <div class="emergency-card">
+                        <span class="emergency-card-title">National Emergency Number</span>
+                        <a href="tel:112" class="emergency-card-num">Call 112</a>
+                        <span class="emergency-card-sub">All-in-one Emergency (Medical &bull; Police &bull; Rescue)</span>
+                    </div>
 
-                    <h2>
-                        Nearby Therapists
-                    </h2>
+                    <div class="emergency-card">
+                        <span class="emergency-card-title">Tele-MANAS (Govt. of India)</span>
+                        <a href="tel:14416" class="emergency-card-num">Call 14416</a>
+                        <span class="emergency-card-sub">Toll-free 24/7 National Tele-Mental Health</span>
+                    </div>
 
-                    <p>
-                        Choose distance and explore therapists near you.
-                    </p>
+                    <div class="emergency-card">
+                        <span class="emergency-card-title">KIRAN Helpline (Govt. of India)</span>
+                        <a href="tel:18005990019" class="emergency-card-num">1800-599-0019</a>
+                        <span class="emergency-card-sub">24/7 Toll-Free Psychological Support</span>
+                    </div>
 
-                    <br>
-
-                    <!-- RADIUS SELECT -->
-
-                    <select id="radius-select">
-
-                        <option value="1000">
-                            Within 1 KM
-                        </option>
-
-                        <option value="3000" selected>
-                            Within 3 KM
-                        </option>
-
-                        <option value="5000">
-                            Within 5 KM
-                        </option>
-
-                        <option value="10000">
-                            Within 10 KM
-                        </option>
-
-                    </select>
-
-                    <button
-                    onclick="findTherapists()"
-                    class="create-btn">
-
-                        Find Therapists Near Me
-
-                    </button>
-
+                    <div class="emergency-card">
+                        <span class="emergency-card-title">Vandrevala Foundation</span>
+                        <a href="tel:+919999666555" class="emergency-card-num">+91 9999 666 555</a>
+                        <span class="emergency-card-sub">24/7 Free Crisis Counseling by Psychologists</span>
+                    </div>
                 </div>
 
+                <p class="emergency-disclaimer">
+                    Note: ThriveSpace does not provide emergency intervention, automatic calling, or location tracking. You remain in complete control.
+                </p>
             </div>
 
-            <!-- RESULTS -->
+            <!-- PERSONALIZED SUPPORT CTA BANNER (IF LOGGED IN) -->
+            {% if support_cta %}
+                <div class="cta-banner">
+                    <div class="cta-header">
+                        <span>&#128161;</span> Supportive Guidance
+                    </div>
+                    <p class="cta-text">{{ support_cta }}</p>
+                    <p class="cta-subtext">
+                        Wellness check-ins and reflection scores are technical self-reflection prototypes, not clinical diagnoses or medical assessments.
+                    </p>
+                </div>
+            {% endif %}
 
-            <div id="map-container"></div>
+            <!-- CATEGORY FILTER TABS -->
+            <div class="category-filters">
+                <button class="filter-btn active" onclick="filterResources('all')">All Resources ({{ resources|length }})</button>
+                <button class="filter-btn" onclick="filterResources('Crisis / Immediate Help')">Crisis Help</button>
+                <button class="filter-btn" onclick="filterResources('Mental Wellness Helplines')">Helplines</button>
+                <button class="filter-btn" onclick="filterResources('Professional Support')">Professional Care</button>
+                <button class="filter-btn" onclick="filterResources('Student Support')">Student Support</button>
+                <button class="filter-btn" onclick="filterResources('Self-Help Resources')">Self-Help</button>
+            </div>
+
+            <!-- CURATED RESOURCES DIRECTORY -->
+            <div class="resources-grid" id="resources-container">
+                {% for r in resources %}
+                    <div class="resource-card" data-category="{{ r.category }}">
+                        <div>
+                            {% if r.category == 'Crisis / Immediate Help' %}
+                                <span class="resource-category-badge badge-crisis">{{ r.category }}</span>
+                            {% elif r.category == 'Mental Wellness Helplines' %}
+                                <span class="resource-category-badge badge-helpline">{{ r.category }}</span>
+                            {% elif r.category == 'Professional Support' %}
+                                <span class="resource-category-badge badge-professional">{{ r.category }}</span>
+                            {% elif r.category == 'Student Support' %}
+                                <span class="resource-category-badge badge-student">{{ r.category }}</span>
+                            {% else %}
+                                <span class="resource-category-badge badge-selfhelp">{{ r.category }}</span>
+                            {% endif %}
+
+                            <h3 class="resource-title">{{ r.name }}</h3>
+                            <p class="resource-desc">{{ r.description }}</p>
+                        </div>
+
+                        <div>
+                            <div class="resource-meta">
+                                {% if r.phone %}
+                                    <div class="meta-row">
+                                        <span class="meta-label">Phone:</span>
+                                        <a href="tel:{{ r.phone }}" class="meta-phone">{{ r.phone }}</a>
+                                    </div>
+                                {% endif %}
+                                {% if r.availability %}
+                                    <div class="meta-row">
+                                        <span class="meta-label">Hours:</span>
+                                        <span>{{ r.availability }}</span>
+                                    </div>
+                                {% endif %}
+                                <div class="meta-row">
+                                    <span class="meta-label">Region:</span>
+                                    <span>{{ r.region }}</span>
+                                </div>
+                            </div>
+
+                            {% if r.tags %}
+                                <div class="resource-tags">
+                                    {% for tag in r.tags %}
+                                        <span class="tag-pill">{{ tag }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            {% if r.website %}
+                                <a href="{{ r.website }}" target="_blank" rel="noopener noreferrer" class="resource-action-btn">
+                                    Visit Official Website &rarr;
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- RESPONSIBLE AI NOTICE -->
+            <div class="notice-card">
+                <h4>Responsible AI &amp; Health Notice</h4>
+                <p>
+                    {{ disclaimer }} If your concerns are persistent, distressing, or interfering with your daily functioning, we encourage speaking with a qualified healthcare professional or licensed counselor.
+                </p>
+            </div>
 
         </div>
 
     </div>
 
-<script>
-
-async function findTherapists(){
-
-    navigator.geolocation.getCurrentPosition(
-        async position => {
-
-            const lat =
-            position.coords.latitude;
-
-            const lng =
-            position.coords.longitude;
-
-            const radius =
-            document.getElementById(
-                "radius-select"
-            ).value;
-
-            const response =
-            await fetch(
-                `/get-therapists?lat=${lat}&lng=${lng}&radius=${radius}`
-            );
-
-            const data =
-            await response.json();
-
-            let cards = "";
-
-            if(data.results.length === 0){
-
-                cards = `
-                <div class="journal-card">
-
-                    <div class="card-content">
-
-                        <h2>
-                            No Therapists Found
-                        </h2>
-
-                        <p>
-                            Try increasing the distance.
-                        </p>
-
-                    </div>
-
-                </div>
-                `;
-
-            }
-
-            data.results.forEach(place => {
-
-                cards += `
-
-                <div class="journal-card">
-
-                    <div class="card-content">
-
-                        <h2>
-                            ${place.name}
-                        </h2>
-
-                        <p>
-                            ⭐ Rating:
-                            ${place.rating || "N/A"}
-                        </p>
-
-                        <p>
-                            📍 ${place.vicinity}
-                        </p>
-
-                    </div>
-
-                </div>
-
-                `;
-
+    <script>
+        function filterResources(category) {
+            // Update active button state
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                if (category === 'all' && btn.textContent.startsWith('All Resources')) {
+                    btn.classList.add('active');
+                } else if (btn.textContent.toLowerCase().includes(category.toLowerCase().split(' ')[0])) {
+                    btn.classList.add('active');
+                }
             });
 
-            document.getElementById(
-                "map-container"
-            ).innerHTML = cards;
-
+            // Filter cards
+            const cards = document.querySelectorAll('.resource-card');
+            cards.forEach(card => {
+                if (category === 'all' || card.getAttribute('data-category') === category) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
         }
-    );
-
-}
-
-</script>
+    </script>
 
 </body>
-
 </html>

@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goals & Habits &mdash; ThriveSpace</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+        @media (max-width: 950px) {
+            .grid-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+        .suggestion-card {
+            background: #ffffff;
+            border: 1px solid #ede9fe;
+            border-left: 5px solid #8b5cf6;
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 14px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .suggestion-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(124, 58, 237, 0.08);
+        }
+        .suggestion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .signal-badge {
+            background: #ede9fe;
+            color: #6d28d9;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 3px 9px;
+            border-radius: 12px;
+            letter-spacing: 0.5px;
+        }
+        .progress-track {
+            width: 100%;
+            height: 10px;
+            background: #f3e8ff;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 10px 0 8px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #8b5cf6, #a855f7);
+            border-radius: 6px;
+            transition: width 0.3s ease;
+        }
+        .progress-bar-complete {
+            background: #10b981;
+        }
+        .goal-item-card {
+            background: #ffffff;
+            border: 1px solid #ede9fe;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        .habit-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #ffffff;
+            border: 1px solid #ede9fe;
+            border-radius: 14px;
+            padding: 14px 18px;
+            margin-bottom: 12px;
+            gap: 12px;
+        }
+        .habit-btn-done {
+            background: #ecfdf5;
+            color: #059669;
+            border: 1px solid #a7f3d0;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .habit-btn-todo {
+            background: #fdf2f8;
+            color: #be185d;
+            border: 1px solid #fbcfe8;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .cat-tag {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: #f5f3ff;
+            color: #7c3aed;
+        }
+        .form-card {
+            background: #ffffff;
+            border: 1px solid #e9d5ff;
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 24px;
+        }
+        .input-group {
+            margin-bottom: 14px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #35206b;
+            margin-bottom: 5px;
+        }
+        .input-field {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd6fe;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #1f2937;
+            box-sizing: border-box;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div>
+                <div class="logo">
+                    <h1>Thrive</h1>
+                    <p>Write. Reflect. Grow.</p>
+                </div>
+                <div class="menu">
+                    <a href="/journals">My Journals</a>
+                    <a href="/create-journal">Create Journal</a>
+                    <a href="/mood">Daily Check-in</a>
+                    <a href="/mood/history">Mood History</a>
+                    <a href="/burnout">Wellness Assessment</a>
+                    <a href="/goals" class="active">Goals & Habits</a>
+                    <a href="/support">Professional Support</a>
+                    <a href="/profile">Profile</a>
+                    <a href="/logout">Logout</a>
+                </div>
+            </div>
+            <div class="quote-box">
+                <p>&ldquo;Small disciplines repeated with consistency every day lead to great achievements.&rdquo;</p>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div>
+                    <h1 style="color: #35206b; font-size: 30px; font-weight: 700;">Goals, Habits & Next Steps</h1>
+                    <p style="color: #6b7280; font-size: 15px;">Turn reflection into action with gentle daily habits and measurable wellness goals.</p>
+                </div>
+                <div class="user-box">
+                    <span>Logged in as</span>
+                    <h3>{{ current_user.username }}</h3>
+                </div>
+            </div>
+
+            <!-- FLASH ALERTS -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}" style="margin-bottom: 20px;">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <!-- SECTION 1: YOUR NEXT SMALL STEPS (SUGGESTIONS) -->
+            <div class="journal-card" style="background: linear-gradient(135deg, #ffffff 0%, #fbf8ff 100%); border-left: 6px solid #8b5cf6; margin-bottom: 28px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #7c3aed; letter-spacing: 0.5px;">Explainable Guidance</span>
+                        <h2 style="font-size: 22px; color: #35206b; margin-top: 2px;">Your Next Small Steps</h2>
+                    </div>
+                    <span style="font-size: 12px; color: #6b7280;">Derived from your available self-reflection inputs</span>
+                </div>
+                
+                <p style="color: #6b7280; font-size: 13px; margin-bottom: 16px;">
+                    {{ disclaimer }}
+                </p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px;">
+                    {% for item in suggestions %}
+                    <div class="suggestion-card">
+                        <div class="suggestion-header">
+                            <span class="signal-badge">Based on: {{ item.source_signal }}</span>
+                        </div>
+                        <h4 style="color: #35206b; font-size: 15px; font-weight: 700; line-height: 1.4; margin-bottom: 6px;">
+                            {{ item.suggestion }}
+                        </h4>
+                        <p style="color: #6b7280; font-size: 12.5px; line-height: 1.4; margin: 0;">
+                            <strong>Why:</strong> {{ item.reason }}
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 2-COLUMN LAYOUT: GOALS & HABITS -->
+            <div class="grid-2col">
+                <!-- COLUMN 1: GOALS -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <h2 style="color: #35206b; font-size: 20px; font-weight: 700;">My Goals</h2>
+                        <span style="font-size: 13px; color: #7c3aed; font-weight: 600;">{{ active_goals|length }} Active</span>
+                    </div>
+
+                    <!-- CREATE GOAL FORM -->
+                    <div class="form-card">
+                        <h3 style="color: #35206b; font-size: 16px; margin-bottom: 12px;">+ Set a New Goal</h3>
+                        <form action="/goals/create" method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            
+                            <div class="input-group">
+                                <label for="goal_title">Goal Title *</label>
+                                <input type="text" id="goal_title" name="title" class="input-field" placeholder="e.g. Read 20 mins before bed" required>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div class="input-group">
+                                    <label for="goal_category">Category</label>
+                                    <select id="goal_category" name="category" class="input-field">
+                                        {% for cat in categories %}
+                                            <option value="{{ cat }}">{{ cat }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label for="goal_unit">Unit</label>
+                                    <input type="text" id="goal_unit" name="unit" class="input-field" placeholder="e.g. days/wk, hrs, pages" value="times">
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div class="input-group">
+                                    <label for="goal_target">Target Value *</label>
+                                    <input type="number" step="0.5" min="0.1" id="goal_target" name="target_value" class="input-field" value="5" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="goal_current">Current Progress</label>
+                                    <input type="number" step="0.5" min="0" id="goal_current" name="current_value" class="input-field" value="0">
+                                </div>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="goal_deadline">Target Deadline (Optional)</label>
+                                <input type="date" id="goal_deadline" name="deadline" class="input-field">
+                            </div>
+
+                            <button type="submit" class="create-btn" style="border: none; cursor: pointer; width: 100%; padding: 10px; font-size: 14px; margin-top: 4px;">
+                                Create Goal
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- ACTIVE GOALS LIST -->
+                    {% if active_goals and active_goals|length > 0 %}
+                        {% for goal in active_goals %}
+                        <div class="goal-item-card">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 6px;">
+                                <div>
+                                    <span class="cat-tag">{{ goal.category }}</span>
+                                    <h4 style="color: #35206b; font-size: 16px; margin-top: 4px; margin-bottom: 2px;">{{ goal.title }}</h4>
+                                    {% if goal.description %}
+                                        <p style="color: #6b7280; font-size: 12.5px; margin: 0;">{{ goal.description }}</p>
+                                    {% endif %}
+                                </div>
+                                <div style="text-align: right;">
+                                    <span style="font-size: 14px; font-weight: 700; color: #7c3aed;">
+                                        {{ goal.current_value }} / {{ goal.target_value }}
+                                    </span>
+                                    <span style="font-size: 12px; color: #6b7280;">{{ goal.unit }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Progress Track -->
+                            <div class="progress-track">
+                                <div class="progress-bar" style="width: {{ goal.progress_percentage }}%;"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #6b7280; margin-bottom: 12px;">
+                                <span>Progress: {{ goal.progress_percentage }}%</span>
+                                <span>{% if goal.deadline %}Due {{ goal.deadline|format_date }}{% else %}Ongoing{% endif %}</span>
+                            </div>
+
+                            <!-- Edit Progress Inline & Action Buttons -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; padding-top: 10px; border-top: 1px solid #f3e8ff;">
+                                <form action="/goals/{{ goal.id }}/edit" method="POST" style="display: flex; align-items: center; gap: 6px;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <span style="font-size: 12px; color: #4b5563;">Update:</span>
+                                    <input type="number" step="0.5" min="0" name="current_value" value="{{ goal.current_value }}" style="width: 60px; padding: 4px 6px; border: 1px solid #ddd6fe; border-radius: 6px; font-size: 12px;">
+                                    <button type="submit" style="background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; border-radius: 6px; padding: 4px 8px; font-size: 12px; cursor: pointer;">
+                                        Save
+                                    </button>
+                                </form>
+
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <form action="/goals/{{ goal.id }}/complete" method="POST" style="display: inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer;">
+                                            &#10003; Done
+                                        </button>
+                                    </form>
+                                    <form action="/goals/{{ goal.id }}/delete" method="POST" style="display: inline;" onsubmit="return confirm('Delete this goal?');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" style="background: none; border: none; color: #ef4444; font-size: 12px; font-weight: 600; cursor: pointer;">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div style="background: #ffffff; border: 1px dashed #ddd6fe; border-radius: 14px; padding: 24px; text-align: center; color: #6b7280; font-size: 14px; margin-bottom: 20px;">
+                            No active goals yet. Add a small, realistic target above to get started!
+                        </div>
+                    {% endif %}
+
+                    <!-- COMPLETED GOALS (COLLAPSIBLE / SUMMARY) -->
+                    {% if completed_goals and completed_goals|length > 0 %}
+                    <div style="margin-top: 24px;">
+                        <h3 style="color: #059669; font-size: 16px; font-weight: 700; margin-bottom: 10px;">
+                            &#10003; Completed Goals ({{ completed_goals|length }})
+                        </h3>
+                        {% for goal in completed_goals %}
+                        <div style="background: #fdfdfd; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px 16px; margin-bottom: 10px; opacity: 0.85; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <span style="text-decoration: line-through; font-weight: 600; color: #4b5563; font-size: 14px;">{{ goal.title }}</span>
+                                <span style="font-size: 12px; color: #059669; margin-left: 6px;">({{ goal.target_value }} {{ goal.unit }})</span>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <form action="/goals/{{ goal.id }}/complete" method="POST" style="display: inline;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" style="background: none; border: none; color: #7c3aed; font-size: 12px; cursor: pointer;">
+                                        Re-open
+                                    </button>
+                                </form>
+                                <form action="/goals/{{ goal.id }}/delete" method="POST" style="display: inline;" onsubmit="return confirm('Delete this completed goal?');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" style="background: none; border: none; color: #ef4444; font-size: 12px; cursor: pointer;">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- COLUMN 2: HABITS -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <h2 style="color: #35206b; font-size: 20px; font-weight: 700;">Daily & Weekly Habits</h2>
+                        <span style="font-size: 13px; color: #059669; font-weight: 600;">{{ today_habits_completed }} Done Today</span>
+                    </div>
+
+                    <!-- CREATE HABIT FORM -->
+                    <div class="form-card">
+                        <h3 style="color: #35206b; font-size: 16px; margin-bottom: 12px;">+ Add a New Habit</h3>
+                        <form action="/habits/create" method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            
+                            <div class="input-group">
+                                <label for="habit_name">Habit Name *</label>
+                                <input type="text" id="habit_name" name="name" class="input-field" placeholder="e.g. 5-minute morning mindfulness" required>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div class="input-group">
+                                    <label for="habit_category">Category</label>
+                                    <select id="habit_category" name="category" class="input-field">
+                                        {% for cat in habit_categories %}
+                                            <option value="{{ cat }}">{{ cat }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label for="habit_freq">Frequency</label>
+                                    <select id="habit_freq" name="frequency" class="input-field">
+                                        {% for freq in habit_frequencies %}
+                                            <option value="{{ freq }}">{{ freq }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="create-btn" style="border: none; cursor: pointer; width: 100%; padding: 10px; font-size: 14px; margin-top: 4px;">
+                                Add Habit
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- HABITS LIST -->
+                    {% if habits and habits|length > 0 %}
+                        {% for item in habits %}
+                        <div class="habit-row">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 3px;">
+                                    <span class="cat-tag">{{ item.category }}</span>
+                                    <span style="font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase;">{{ item.frequency }}</span>
+                                </div>
+                                <h4 style="color: #35206b; font-size: 15px; margin: 0 0 2px 0;">{{ item.name }}</h4>
+                                <div style="font-size: 12px; color: #6b7280;">
+                                    {% if item.frequency == 'Weekly' %}
+                                        Logged {{ item.week_count }} times this week
+                                    {% else %}
+                                        Daily routine
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <!-- Toggle Form -->
+                                <form action="/habits/{{ item.id }}/toggle" method="POST" style="margin: 0;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    {% if item.is_completed_today %}
+                                        <button type="submit" class="habit-btn-done" title="Click to undo today's completion">
+                                            &#10003; Done Today
+                                        </button>
+                                    {% else %}
+                                        <button type="submit" class="habit-btn-todo" title="Click to mark done for today">
+                                            &#9675; Mark Done
+                                        </button>
+                                    {% endif %}
+                                </form>
+
+                                <!-- Delete Form -->
+                                <form action="/habits/{{ item.id }}/delete" method="POST" style="margin: 0;" onsubmit="return confirm('Delete this habit?');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" style="background: none; border: none; color: #9ca3af; font-size: 16px; cursor: pointer; padding: 4px;" title="Delete Habit">
+                                        &times;
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div style="background: #ffffff; border: 1px dashed #ddd6fe; border-radius: 14px; padding: 24px; text-align: center; color: #6b7280; font-size: 14px;">
+                            No habits tracked yet. Add your first simple daily or weekly habit above!
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
